@@ -25,6 +25,15 @@ The implementation follows **Hexagonal Architecture (Ports & Adapters)** pattern
 - [**Order Shipment & Delivery Sequence**](docs/diagrams/sequence-order-shipment.png) - Shipment and delivery lifecycle
 - [**Error Handling & Retry Sequence**](docs/diagrams/sequence-error-handling.png) - Reliability mechanisms
 
+### 📸 UI Screenshots
+
+- [Sales Dashboard - Login](docs/ui-images/image-1.png)
+- [Sales Dashboard - Create Order](docs/ui-images/image-2.png)
+- [Delivery Dashboard - Pending](docs/ui-images/image-3.png)
+- [Delivery Dashboard - In Transit](docs/ui-images/image-4.png)
+- [Delivery Dashboard - Deliverd](docs/ui-images/image-5.png)
+- [Sales Dashboard - Deliverd](docs/ui-images/image-6.png)
+
 ---
 
 ## 🚀 Quick Start - Running the Platform
@@ -39,6 +48,10 @@ The implementation follows **Hexagonal Architecture (Ports & Adapters)** pattern
 cd dockers
 docker-compose up -d
 ```
+
+**Or use VS Code Tasks:**
+- Press `Ctrl+Shift+P` → "Tasks: Run Task"
+- Select **"🚀 Docker: Start All Services"**
 
 Wait 1-2 minutes for all services to become healthy.
 
@@ -70,4 +83,13 @@ docker-compose down     # Stop (keeps data)
 docker-compose down -v  # Stop + delete data
 ```
 
+**Or use VS Code Tasks:**
+- `Ctrl+Shift+P` → "Tasks: Run Task"
+- **"🛑 Docker: Stop All Services"** - Stop all services
+- **"🗑️ Docker: Remove All Services"** - Stop and delete all data
+- **"🔄 Docker: Restart All Services"** - Restart everything
+- **"🔨 Docker: Rebuild & Start All Services"** - Full rebuild
+
 ---
+
+

@@ -1,0 +1,221 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🚀 Docker: Start All Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["up", "-d"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "🛑 Docker: Stop All Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["stop"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🗑️ Docker: Remove All Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["down", "-v"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔄 Docker: Restart All Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["restart"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Docker: Rebuild & Start All Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["up", "-d", "--build"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "📊 Docker: View Services Status",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["ps"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "📝 Docker: View All Logs",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["logs", "-f"],
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "isBackground": true
+    },
+    {
+      "label": "🧹 Docker: Clean Up (Remove Volumes & Images)",
+      "type": "shell",
+      "command": "docker-compose down -v --rmi all",
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Rebuild API Sales",
+      "type": "shell",
+      "command": "docker-compose stop api-sales; docker-compose build api-sales; docker-compose up -d api-sales",
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Rebuild API Delivery",
+      "type": "shell",
+      "command": "docker-compose stop api-delivery; docker-compose build api-delivery; docker-compose up -d api-delivery",
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Rebuild Dashboard Sales",
+      "type": "shell",
+      "command": "docker-compose stop dashboard-sales; docker-compose build dashboard-sales; docker-compose up -d dashboard-sales",
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Rebuild Dashboard Delivery",
+      "type": "shell",
+      "command": "docker-compose stop dashboard-delivery; docker-compose build dashboard-delivery; docker-compose up -d dashboard-delivery",
+      "options": {
+        "cwd": "${workspaceFolder}/dockers"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    }
+  ]
+}

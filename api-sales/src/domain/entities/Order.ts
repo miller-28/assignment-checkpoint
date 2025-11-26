@@ -1,5 +1,5 @@
 // Order entity definition
-export type OrderStatus = 'PendingShipment' | 'Shipped' | 'Delivered';
+export type OrderStatus = 'Pending' | 'Shipped' | 'Delivered';
 
 export interface Order {
   order_id: string;

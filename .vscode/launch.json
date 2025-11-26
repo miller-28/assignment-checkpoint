@@ -1,6 +1,45 @@
 {
     "version": "0.2.0",
     "configurations": [
-      
+        {
+            "name": "🚀 Start All Services",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "🚀 Docker: Start All Services",
+            "program": "${workspaceFolder}/api-sales/src/index.ts",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "🛑 Stop All Services",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "🛑 Docker: Stop All Services",
+            "program": "${workspaceFolder}/api-sales/src/index.ts",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "🗑️ Remove All Services",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "🗑️ Docker: Remove All Services",
+            "program": "${workspaceFolder}/api-sales/src/index.ts",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "🔄 Restart All Services",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "🔄 Docker: Restart All Services",
+            "program": "${workspaceFolder}/api-sales/src/index.ts",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "🔨 Rebuild & Start All Services",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "🔨 Docker: Rebuild & Start All Services",
+            "program": "${workspaceFolder}/api-sales/src/index.ts",
+            "skipFiles": ["<node_internals>/**"]
+        }
     ]
 }

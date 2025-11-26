@@ -237,8 +237,6 @@ const confirmShip = async () => {
   try {
     await markAsShipped(orderToShip.value);
     successMessage.value = 'Order marked as shipped successfully';
-    showShipModal.value = false;
-    orderToShip.value = null;
     await refreshOrders();
     
     setTimeout(() => {
@@ -246,6 +244,9 @@ const confirmShip = async () => {
     }, 3000);
   } catch (error: any) {
     errorMessage.value = error.response?.data?.error || 'Failed to mark as shipped';
+  } finally {
+    showShipModal.value = false;
+    orderToShip.value = null;
   }
 };
 
@@ -260,8 +261,6 @@ const confirmDeliver = async () => {
   try {
     await markAsDelivered(orderToDeliver.value);
     successMessage.value = 'Order marked as delivered successfully';
-    showDeliverModal.value = false;
-    orderToDeliver.value = null;
     await refreshOrders();
     
     setTimeout(() => {
@@ -269,6 +268,9 @@ const confirmDeliver = async () => {
     }, 3000);
   } catch (error: any) {
     errorMessage.value = error.response?.data?.error || 'Failed to mark as delivered';
+  } finally {
+    showDeliverModal.value = false;
+    orderToDeliver.value = null;
   }
 };
 

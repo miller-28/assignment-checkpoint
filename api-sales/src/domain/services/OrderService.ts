@@ -16,7 +16,7 @@ export class OrderService {
       user_id: data.user_id!,
       product_id: data.product_id!,
       quantity: data.quantity!,
-      status: 'PendingShipment',
+      status: 'Pending',
       created_at: new Date(),
       idempotency_key: data.idempotency_key,
     };
