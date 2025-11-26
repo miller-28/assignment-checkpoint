@@ -35,8 +35,13 @@ package "AWS Cloud" <<Cloud Infrastructure>> #White {
     }
     
     database "PostgreSQL" as postgres <<Database>> #LightYellow {
-        storage "Orders DB" as orders_db
-        storage "Delivery DB" as delivery_db
+        storage "ecommerce_db" as ecommerce_db {
+            note right
+                - orders table
+                - products table
+                - processed_events table
+            end note
+        }
     }
     
     database "Redis" as redis <<Cache>> #Orange {
@@ -106,7 +111,7 @@ sales_api --> oauth : Validate JWT
 delivery_controllers --> delivery_domain
 delivery_domain --> delivery_ports
 delivery_ports --> delivery_adapters
-delivery_api --> postgres : Read/Write deliveries
+delivery_api --> postgres : Read/Write orders
 delivery_api --> redis : Session management
 delivery_api --> rabbitmq : Publish/Consume events
 delivery_api --> kafka : Stream events
