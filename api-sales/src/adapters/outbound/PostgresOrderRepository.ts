@@ -37,6 +37,12 @@ export class PostgresOrderRepository implements IOrderRepository {
     return this.mapRowToOrder(result.rows[0]);
   }
 
+  async findAll(): Promise<Order[]> {
+    const query = 'SELECT * FROM orders ORDER BY created_at DESC';
+    const result = await this.pool.query(query);
+    return result.rows.map(row => this.mapRowToOrder(row));
+  }
+
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
     const timestampField = status === 'Shipped' ? 'shipped_at' : status === 'Delivered' ? 'delivered_at' : null;
     let query = `UPDATE orders SET status = $1`;
@@ -48,6 +54,21 @@ export class PostgresOrderRepository implements IOrderRepository {
     query += ` WHERE order_id = $2`;
     
     await this.pool.query(query, values);
+  }
+
+  async deleteById(orderId: string): Promise<void> {
+    const query = 'DELETE FROM orders WHERE order_id = $1';
+    await this.pool.query(query, [orderId]);
+  }
+
+  async delete(orderId: string): Promise<void> {
+    const query = 'DELETE FROM orders WHERE order_id = $1';
+    await this.pool.query(query, [orderId]);
+  }
+
+  async deleteAll(): Promise<void> {
+    const query = 'DELETE FROM orders';
+    await this.pool.query(query);
   }
 
   private mapRowToOrder(row: any): Order {
