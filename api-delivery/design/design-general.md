@@ -64,8 +64,6 @@ api-delivery/
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
-├── Dockerfile
-├── docker-compose.yml
 ├── package.json
 └── tsconfig.json
 ```
@@ -281,28 +279,6 @@ LOG_LEVEL=info
 - **Integration tests:** Repository, message publishing/consuming
 - **E2E tests:** Full delivery lifecycle via events and REST API
 - **Test cleanup:** Delete test data after each test
-
----
-
-## Docker Setup
-
-```yaml
-version: '3.8'
-services:
-  delivery-api:
-    build: .
-    ports:
-      - "3001:3001"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/delivery_db
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-      - KAFKA_BROKERS=kafka:9092
-    depends_on:
-      - postgres
-      - rabbitmq
-      - kafka
-      - redis
-```
 
 ---
 

@@ -1,1 +1,193 @@
-.assignment
+# ============================================
+# Platform-wide ignores for Order Processing
+# ============================================
+
+# ====================
+# Node.js / NPM
+# ====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ====================
+# TypeScript
+# ====================
+*.tsbuildinfo
+dist/
+build/
+out/
+*.js.map
+
+# ====================
+# Environment Variables
+# ====================
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env*.local
+*.env
+
+# ====================
+# IDE / Editors
+# ====================
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ====================
+# Operating Systems
+# ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# ====================
+# Logs
+# ====================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pino-*.log
+combined.log
+error.log
+access.log
+
+# ====================
+# Testing
+# ====================
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+test-results/
+junit.xml
+
+# ====================
+# Docker
+# ====================
+docker-compose.override.yml
+.dockerignore
+
+# ====================
+# Vue.js / Frontend
+# ====================
+# Build outputs
+dist-ssr/
+*.local
+
+# Vite
+.vite/
+.cache/
+
+# ====================
+# Database
+# ====================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# PostgreSQL
+*.pgdata
+*.pgsql
+
+# ====================
+# Temporary files
+# ====================
+*.tmp
+*.temp
+tmp/
+temp/
+.cache/
+.temp/
+
+# ====================
+# Secrets & Credentials
+# ====================
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+credentials/
+
+# ====================
+# Backup files
+# ====================
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# ====================
+# Archives
+# ====================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ====================
+# Misc
+# ====================
+.npm/
+.yarn/
+.pnp.*
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/

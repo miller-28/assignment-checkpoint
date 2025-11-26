@@ -64,8 +64,6 @@ api-sales/
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
-├── Dockerfile
-├── docker-compose.yml              # Local dev with Postgres, RabbitMQ, Kafka, Redis
 ├── package.json
 └── tsconfig.json
 ```
@@ -247,25 +245,3 @@ LOG_LEVEL=info
 - **Integration tests:** Repository, message publishing
 - **E2E tests:** Full order creation flow via REST API
 - **Test cleanup:** Delete test data after each test
-
----
-
-## Docker Setup
-
-```yaml
-version: '3.8'
-services:
-  sales-api:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sales_db
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-      - KAFKA_BROKERS=kafka:9092
-    depends_on:
-      - postgres
-      - rabbitmq
-      - kafka
-      - redis
-```
