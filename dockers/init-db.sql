@@ -5,6 +5,30 @@ CREATE DATABASE delivery_db;
 -- Connect to sales_db and create schema
 \c sales_db;
 
+-- Products table for inventory management
+CREATE TABLE IF NOT EXISTS products (
+    product_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+    quantity INTEGER NOT NULL DEFAULT 0 CHECK (quantity >= 0),
+    sku VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes for products
+CREATE INDEX idx_products_sku ON products(sku);
+CREATE INDEX idx_products_quantity ON products(quantity);
+
+-- Insert sample products for testing
+INSERT INTO products (product_id, name, description, price, quantity, sku) VALUES
+    ('550e8400-e29b-41d4-a716-446655440001', 'Laptop Pro 15', 'High-performance laptop with 16GB RAM', 1299.99, 50, 'LAP-PRO-15'),
+    ('550e8400-e29b-41d4-a716-446655440002', 'Wireless Mouse', 'Ergonomic wireless mouse with USB receiver', 29.99, 200, 'MOU-WRL-01'),
+    ('550e8400-e29b-41d4-a716-446655440003', 'Mechanical Keyboard', 'RGB mechanical keyboard with Cherry MX switches', 159.99, 75, 'KEY-MCH-RGB'),
+    ('550e8400-e29b-41d4-a716-446655440004', 'USB-C Hub', '7-in-1 USB-C hub with HDMI and Ethernet', 49.99, 150, 'HUB-USBC-7'),
+    ('550e8400-e29b-41d4-a716-446655440005', 'Webcam 4K', '4K webcam with auto-focus and noise cancellation', 89.99, 0, 'CAM-4K-PRO');
+
 -- Orders table for Sales system
 CREATE TABLE IF NOT EXISTS orders (
     order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

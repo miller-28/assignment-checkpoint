@@ -219,15 +219,15 @@ Use color-coded badges:
 
 ---
 
-## Auto-Refresh (Optional)
+## Auto-Refresh
 
-Poll API every 5 seconds to show status updates:
+Poll API every 3 seconds to show status updates:
 ```typescript
 setInterval(() => {
   if (isAuthenticated()) {
     fetchOrders();
   }
-}, 5000);
+}, 3000);
 ```
 
 ---
@@ -236,7 +236,7 @@ setInterval(() => {
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api/v1
-VITE_POLLING_INTERVAL=5000
+VITE_POLLING_INTERVAL=3000
 ```
 
 ---
