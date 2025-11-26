@@ -1,0 +1,147 @@
+@startuml Order Processing Platform - Component Diagram
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title Order Processing Platform - Component Architecture
+
+actor "Customer" as customer
+
+package "AWS Cloud" <<Cloud Infrastructure>> #White {
+    component "AWS ALB" as alb <<Load Balancer>> #LightBlue {
+        note right
+            - SSL Termination
+            - Health Checks
+            - Auto-scaling
+        end note
+    }
+    
+    package "Sales System" {
+        component "Sales API" as sales_api <<Fastify>> #LightGreen {
+            component "REST Controllers" as sales_controllers
+            component "Domain Logic" as sales_domain
+            component "Ports" as sales_ports
+            component "Adapters" as sales_adapters
+        }
+    }
+    
+    package "Delivery System" {
+        component "Delivery API" as delivery_api <<Fastify>> #LightGreen {
+            component "REST Controllers" as delivery_controllers
+            component "Domain Logic" as delivery_domain
+            component "Ports" as delivery_ports
+            component "Adapters" as delivery_adapters
+        }
+    }
+    
+    database "PostgreSQL" as postgres <<Database>> #LightYellow {
+        storage "Orders DB" as orders_db
+        storage "Delivery DB" as delivery_db
+    }
+    
+    database "Redis" as redis <<Cache>> #Orange {
+        note right
+            - Session Storage
+            - Distributed Cache
+            - OAuth2 Tokens
+        end note
+    }
+    
+    queue "RabbitMQ" as rabbitmq <<Message Broker>> #Pink {
+        queue "orders.created" as q_created
+        queue "orders.shipped" as q_shipped
+        queue "orders.delivered" as q_delivered
+        queue "DLQ" as dlq
+        
+        note right of dlq
+            Dead Letter Queue
+            for failed messages
+        end note
+    }
+    
+    component "Kafka" as kafka <<Event Streaming>> #Purple {
+        storage "Order Events Topic" as kafka_topic
+        note right
+            - OrderCreated
+            - OrderShipped
+            - OrderDelivered
+            - Audit Trail
+        end note
+    }
+    
+    component "OAuth2 Provider" as oauth <<Authentication>> #Cyan
+    
+    package "Observability Stack" {
+        component "Prometheus" as prometheus <<Metrics>> #Yellow
+        component "Grafana" as grafana <<Dashboards>> #Yellow
+        component "ELK Stack" as elk <<Logging>> #Yellow {
+            component "Elasticsearch" as elastic
+            component "Logstash" as logstash
+            component "Kibana" as kibana
+        }
+    }
+}
+
+component "Product Availability\nService (Mock)" as product_service <<External>> #LightGray
+
+' Customer connections
+customer --> alb : HTTPS
+
+' ALB connections
+alb --> sales_api : Route traffic
+alb --> delivery_api : Route traffic
+
+' Sales API connections
+sales_controllers --> sales_domain
+sales_domain --> sales_ports
+sales_ports --> sales_adapters
+sales_api --> postgres : Read/Write orders
+sales_api --> redis : Session management
+sales_api --> rabbitmq : Publish events
+sales_api --> kafka : Stream events
+sales_api --> product_service : Check availability
+sales_api --> oauth : Validate JWT
+
+' Delivery API connections
+delivery_controllers --> delivery_domain
+delivery_domain --> delivery_ports
+delivery_ports --> delivery_adapters
+delivery_api --> postgres : Read/Write deliveries
+delivery_api --> redis : Session management
+delivery_api --> rabbitmq : Publish/Consume events
+delivery_api --> kafka : Stream events
+delivery_api --> oauth : Validate JWT
+
+' RabbitMQ flow
+q_created --> delivery_api : Consume
+delivery_api --> q_shipped : Publish
+q_shipped --> sales_api : Consume
+delivery_api --> q_delivered : Publish
+q_delivered --> sales_api : Consume
+q_created --> dlq : Failed (3x retry)
+q_shipped --> dlq : Failed (3x retry)
+q_delivered --> dlq : Failed (3x retry)
+
+' Observability connections
+sales_api --> prometheus : Expose /metrics
+delivery_api --> prometheus : Expose /metrics
+prometheus --> grafana : Data source
+sales_api --> elk : JSON logs
+delivery_api --> elk : JSON logs
+rabbitmq --> prometheus : Metrics
+postgres --> prometheus : Metrics
+
+legend right
+    |= Component |= Technology |
+    | API Framework | Fastify (TypeScript) |
+    | Architecture | Hexagonal (Ports & Adapters) |
+    | Message Broker | RabbitMQ |
+    | Event Stream | Apache Kafka |
+    | Database | PostgreSQL |
+    | Cache | Redis |
+    | Load Balancer | AWS ALB |
+    | Auth | OAuth2 + JWT |
+    | Observability | Prometheus + Grafana + ELK |
+endlegend
+
+@enduml

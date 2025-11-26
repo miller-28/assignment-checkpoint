@@ -1,0 +1,123 @@
+@startuml Error Handling & Retry - Sequence Diagram
+!theme plain
+autonumber
+
+title Order Processing - Error Handling & Retry Mechanism
+
+participant "Sales API" as sales
+participant "RabbitMQ" as rabbit
+participant "Delivery API" as delivery
+participant "PostgreSQL" as db
+participant "Dead Letter Queue" as dlq
+participant "Grafana" as monitor
+
+== Failed Message Processing (With Retry) ==
+
+sales -> rabbit : Publish to 'orders.created'\n{orderId: "123", ...}
+activate rabbit
+rabbit --> sales : ACK
+deactivate rabbit
+
+rabbit -> delivery : Consume from 'orders.created'\n(Attempt 1)
+activate delivery
+
+delivery -> db : BEGIN TRANSACTION
+activate db
+db --> delivery : ❌ Connection timeout
+deactivate db
+
+delivery -> delivery : Transaction failed\nDO NOT ACK message
+
+delivery --> rabbit : ❌ NACK (requeue)
+deactivate delivery
+
+note right of rabbit
+    Message returned to queue
+    Retry after delay (exponential backoff)
+end note
+
+...Wait 5 seconds...
+
+rabbit -> delivery : Consume from 'orders.created'\n(Attempt 2)
+activate delivery
+
+delivery -> db : BEGIN TRANSACTION
+activate db
+db --> delivery : ❌ Still failing
+deactivate db
+
+delivery --> rabbit : ❌ NACK (requeue)
+deactivate delivery
+
+...Wait 25 seconds...
+
+rabbit -> delivery : Consume from 'orders.created'\n(Attempt 3 - Final)
+activate delivery
+
+delivery -> db : BEGIN TRANSACTION
+activate db
+db --> delivery : ❌ Database down
+deactivate db
+
+delivery --> rabbit : ❌ NACK (reject, no requeue)
+deactivate delivery
+
+rabbit -> dlq : Move to Dead Letter Queue\nafter 3 failed attempts
+activate dlq
+dlq --> rabbit : Message stored in DLQ
+deactivate dlq
+
+rabbit -> monitor : Emit metric:\ndlq_message_count++
+activate monitor
+monitor -> monitor : Trigger alert:\n"Messages in DLQ threshold exceeded"
+deactivate monitor
+
+note over dlq
+    Failed message stored for
+    manual investigation and retry
+    
+    Contains:
+    - Original message
+    - Error details
+    - Retry history
+    - Timestamp
+end note
+
+== Circuit Breaker Pattern ==
+
+sales -> sales : Check circuit breaker state\nfor Product Service
+
+alt Circuit OPEN (service failing)
+    sales --> sales : Fail fast without calling\nProduct Service
+    sales --> sales : Return cached availability\nor default response
+    
+    note right
+        Prevents cascade failures
+        Service gets time to recover
+    end note
+else Circuit CLOSED (service healthy)
+    sales -> sales : Call Product Service normally
+end
+
+== Idempotency Check ==
+
+rabbit -> sales : Consume 'orders.shipped'\n{orderId: "123", eventId: "evt-456"}
+activate sales
+
+sales -> db : SELECT * FROM processed_events\nWHERE event_id = 'evt-456'
+activate db
+db --> sales : Row found (already processed)
+deactivate db
+
+sales -> sales : Skip processing\n(idempotent handler)
+
+sales -> rabbit : ACK message (no-op)
+deactivate rabbit
+deactivate sales
+
+note right of sales
+    Duplicate message handled safely
+    No side effects occurred
+end note
+
+@enduml

@@ -1,0 +1,93 @@
+@startuml Order Creation - Sequence Diagram
+!theme plain
+autonumber
+
+title Order Processing - Order Creation Flow
+
+actor "Customer" as customer
+participant "AWS ALB" as alb
+participant "Sales API" as sales
+participant "OAuth2 Provider" as oauth
+participant "Product Service\n(Mock)" as product
+participant "PostgreSQL" as db
+participant "RabbitMQ" as rabbit
+participant "Kafka" as kafka
+participant "Delivery API" as delivery
+
+== Order Creation ==
+
+customer -> alb : POST /api/v1/orders\n{productId, quantity, ...}
+activate alb
+
+alb -> sales : Route to Sales API
+activate sales
+
+sales -> sales : Extract JWT from\nAuthorization header
+
+sales -> oauth : Validate JWT token
+activate oauth
+oauth --> sales : Token valid + user info
+deactivate oauth
+
+sales -> sales : Validate request payload\n(Schema validation)
+
+alt Invalid input
+    sales --> customer : 400 Bad Request\n{"errors": [...]}
+end
+
+sales -> product : Check product availability\nGET /products/{id}/availability
+activate product
+product --> sales : {available: true, stock: 100}
+deactivate product
+
+alt Product not available
+    sales --> customer : 409 Conflict\n{"error": "Product unavailable"}
+end
+
+sales -> db : BEGIN TRANSACTION
+activate db
+
+sales -> db : INSERT INTO orders\n(user_id, product_id, quantity, status)\nVALUES (..., 'Pending Shipment')
+db --> sales : order_id = UUID
+
+sales -> db : COMMIT TRANSACTION
+deactivate db
+
+sales -> rabbit : Publish message to\n'orders.created' queue\n{orderId, productId, quantity, ...}
+activate rabbit
+rabbit --> sales : ACK
+deactivate rabbit
+
+sales -> kafka : Publish OrderCreated event\n{orderId, timestamp, userId, ...}
+activate kafka
+kafka --> sales : ACK
+deactivate kafka
+
+sales --> alb : 201 Created\n{"orderId": "...", "status": "Pending Shipment"}
+deactivate sales
+
+alb --> customer : 201 Created\n{"orderId": "..."}
+deactivate alb
+
+== Delivery Processing ==
+
+rabbit -> delivery : Consume from 'orders.created'
+activate delivery
+
+delivery -> delivery : Process order for shipment
+
+delivery -> db : UPDATE deliveries\nSET status = 'Processing'
+activate db
+db --> delivery : Success
+deactivate db
+
+delivery -> rabbit : ACK message
+deactivate rabbit
+
+note right of delivery
+    Delivery system continues
+    processing shipment...
+    (See sequence-order-shipment.puml)
+end note
+
+@enduml

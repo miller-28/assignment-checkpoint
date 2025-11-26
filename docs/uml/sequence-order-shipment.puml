@@ -1,0 +1,121 @@
+@startuml Order Shipment - Sequence Diagram
+!theme plain
+autonumber
+
+title Order Processing - Shipment & Delivery Flow
+
+participant "Delivery API" as delivery
+participant "PostgreSQL" as db
+participant "RabbitMQ" as rabbit
+participant "Kafka" as kafka
+participant "Sales API" as sales
+
+== Order Shipped ==
+
+delivery -> delivery : Process shipment\n(warehouse operations)
+
+delivery -> db : BEGIN TRANSACTION
+activate db
+
+delivery -> db : UPDATE deliveries\nSET status = 'Shipped',\nshipped_at = NOW()
+db --> delivery : Success
+
+delivery -> db : COMMIT TRANSACTION
+deactivate db
+
+delivery -> rabbit : Publish to 'orders.shipped'\n{orderId, trackingNumber, ...}
+activate rabbit
+rabbit --> delivery : ACK
+deactivate rabbit
+
+delivery -> kafka : Publish OrderShipped event\n{orderId, timestamp, trackingNumber}
+activate kafka
+kafka --> delivery : ACK
+deactivate kafka
+
+...Sales API consumes shipped event...
+
+rabbit -> sales : Consume from 'orders.shipped'
+activate sales
+
+sales -> sales : Check for duplicate\n(idempotency check)
+
+alt Message already processed
+    sales -> rabbit : ACK (skip processing)
+    note right: Idempotent handler\nprevents duplicate updates
+else New message
+    sales -> db : BEGIN TRANSACTION
+    activate db
+    
+    sales -> db : UPDATE orders\nSET status = 'Shipped',\nshipped_at = NOW()\nWHERE order_id = ?
+    db --> sales : 1 row updated
+    
+    sales -> db : INSERT INTO order_events\n(order_id, event_type, timestamp)
+    db --> sales : Success
+    
+    sales -> db : COMMIT TRANSACTION
+    deactivate db
+    
+    sales -> rabbit : ACK message
+    deactivate rabbit
+end
+
+deactivate sales
+
+== Order Delivered ==
+
+...Time passes - delivery in transit...
+
+delivery -> delivery : Mark order as delivered\n(delivery confirmation)
+
+delivery -> db : BEGIN TRANSACTION
+activate db
+
+delivery -> db : UPDATE deliveries\nSET status = 'Delivered',\ndelivered_at = NOW()
+db --> delivery : Success
+
+delivery -> db : COMMIT TRANSACTION
+deactivate db
+
+delivery -> rabbit : Publish to 'orders.delivered'\n{orderId, deliveredAt, signature}
+activate rabbit
+rabbit --> delivery : ACK
+deactivate rabbit
+
+delivery -> kafka : Publish OrderDelivered event\n{orderId, timestamp, location}
+activate kafka
+kafka --> delivery : ACK
+deactivate kafka
+
+...Sales API consumes delivered event...
+
+rabbit -> sales : Consume from 'orders.delivered'
+activate sales
+
+sales -> sales : Idempotency check
+
+sales -> db : BEGIN TRANSACTION
+activate db
+
+sales -> db : UPDATE orders\nSET status = 'Delivered',\ndelivered_at = NOW()\nWHERE order_id = ?
+db --> sales : 1 row updated
+
+sales -> db : INSERT INTO order_events\n(order_id, event_type, timestamp)
+db --> sales : Success
+
+sales -> db : COMMIT TRANSACTION
+deactivate db
+
+sales -> rabbit : ACK message
+deactivate rabbit
+
+deactivate sales
+
+note over sales, delivery
+    Order lifecycle complete:
+    Pending Shipment → Shipped → Delivered
+    
+    Full audit trail available in Kafka
+end note
+
+@enduml
