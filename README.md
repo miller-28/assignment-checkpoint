@@ -15,6 +15,8 @@ The implementation follows **Hexagonal Architecture (Ports & Adapters)** pattern
 - [**Design System Document**](design-system.md) - Complete architecture overview, components, flows, and technology stack
 - [**Sales API Design**](api-sales/design/design-general.md) - Implementation design for Sales API
 - [**Delivery API Design**](api-delivery/design/design-general.md) - Implementation design for Delivery API
+- [**Sales Dashboard Design**](dashboard-sales/design/design-general.md) - Implementation design for Sales Dashboard
+- [**Delivery Dashboard Design**](dashboard-delivery/design/design-general.md) - Implementation design for Delivery Dashboard
 
 ### 📊 UML Diagrams
 
