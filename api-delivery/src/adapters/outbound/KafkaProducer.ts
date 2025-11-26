@@ -1,7 +1,7 @@
-// Kafka Producer for delivery events
+// Kafka Producer for order events
 import { Kafka, Producer } from 'kafkajs';
 import { config } from '../../infrastructure/config';
-import { Delivery } from '../../domain/entities/Delivery';
+import { Order } from '../../domain/entities/Order';
 
 export class KafkaProducer {
   private kafka: Kafka;
@@ -10,7 +10,7 @@ export class KafkaProducer {
 
   constructor() {
     this.kafka = new Kafka({
-      clientId: 'delivery-api',
+      clientId: 'order-api',
       brokers: config.kafkaBrokers,
     });
     this.producer = this.kafka.producer();
@@ -24,29 +24,28 @@ export class KafkaProducer {
     }
   }
 
-  async publishEvent(eventType: string, delivery: Delivery): Promise<void> {
+  async publishEvent(eventType: string, order: Order): Promise<void> {
     if (!this.connected) {
       await this.connect();
     }
 
     const message = {
       event_type: eventType,
-      delivery_id: delivery.delivery_id,
-      order_id: delivery.order_id,
-      status: delivery.status,
-      tracking_number: delivery.tracking_number,
+      order_id: order.order_id,
+      status: order.status,
+      tracking_number: order.tracking_number,
       timestamp: new Date().toISOString(),
     };
 
     await this.producer.send({
       topic: 'order-events',
       messages: [{
-        key: delivery.order_id,
+        key: order.order_id,
         value: JSON.stringify(message),
       }],
     });
 
-    console.log(`Published ${eventType} event to Kafka for order ${delivery.order_id}`);
+    console.log(`Published ${eventType} event to Kafka for order ${order.order_id}`);
   }
 
   async disconnect(): Promise<void> {

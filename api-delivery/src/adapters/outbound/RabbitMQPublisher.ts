@@ -1,7 +1,7 @@
-// RabbitMQ Publisher for delivery status updates
+// RabbitMQ Publisher for order status updates
 import * as amqp from 'amqplib';
 import { config } from '../../infrastructure/config';
-import { Delivery } from '../../domain/entities/Delivery';
+import { Order } from '../../domain/entities/Order';
 
 export class RabbitMQPublisher {
   private connection: any = null;
@@ -19,37 +19,35 @@ export class RabbitMQPublisher {
     await this.channel.assertQueue('orders.delivered', { durable: true });
   }
 
-  async publishOrderShipped(delivery: Delivery): Promise<void> {
+  async publishOrderShipped(order: Order): Promise<void> {
     if (!this.channel) {
       await this.connect();
     }
     const message = JSON.stringify({
-      order_id: delivery.order_id,
-      delivery_id: delivery.delivery_id,
+      order_id: order.order_id,
       status: 'Shipped',
-      tracking_number: delivery.tracking_number,
-      shipped_at: delivery.shipped_at,
+      tracking_number: order.tracking_number,
+      shipped_at: order.shipped_at,
     });
     this.channel.sendToQueue('orders.shipped', Buffer.from(message), {
       persistent: true,
     });
-    console.log(`Published OrderShipped event for order ${delivery.order_id}`);
+    console.log(`Published OrderShipped event for order ${order.order_id}`);
   }
 
-  async publishOrderDelivered(delivery: Delivery): Promise<void> {
+  async publishOrderDelivered(order: Order): Promise<void> {
     if (!this.channel) {
       await this.connect();
     }
     const message = JSON.stringify({
-      order_id: delivery.order_id,
-      delivery_id: delivery.delivery_id,
+      order_id: order.order_id,
       status: 'Delivered',
-      delivered_at: delivery.delivered_at,
+      delivered_at: order.delivered_at,
     });
     this.channel.sendToQueue('orders.delivered', Buffer.from(message), {
       persistent: true,
     });
-    console.log(`Published OrderDelivered event for order ${delivery.order_id}`);
+    console.log(`Published OrderDelivered event for order ${order.order_id}`);
   }
 
   async close(): Promise<void> {

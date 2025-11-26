@@ -11,7 +11,7 @@ async function main() {
       host: '0.0.0.0',
     });
     
-    console.log(`Delivery API running on port ${config.port}`);
+    console.log(`Order Management API running on port ${config.port}`);
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

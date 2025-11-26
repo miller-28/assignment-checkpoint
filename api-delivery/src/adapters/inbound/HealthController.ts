@@ -23,7 +23,7 @@ export class HealthController {
       const uptime = (Date.now() - this.startTime) / 1000;
       
       return reply.send({
-        service: 'delivery-api',
+        service: 'order-api',
         uptime,
       });
     });

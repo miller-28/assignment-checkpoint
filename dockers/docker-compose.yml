@@ -110,7 +110,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/sales_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ecommerce_db
       REDIS_URL: redis://redis:6379
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       KAFKA_BROKERS: kafka:9092
@@ -140,7 +140,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivery_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ecommerce_db
       REDIS_URL: redis://redis:6379
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       KAFKA_BROKERS: kafka:9092

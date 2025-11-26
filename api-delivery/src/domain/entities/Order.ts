@@ -1,20 +1,19 @@
-// Delivery entity definition
-export type DeliveryStatus = 'Processing' | 'Shipped' | 'Delivered';
+// Order entity definition
+export type OrderStatus = 'Pending' | 'Shipped' | 'Delivered';
 
-export interface Delivery {
-  delivery_id: string;
+export interface Order {
   order_id: string;
   user_id: string;
   product_id: string;
   quantity: number;
-  status: DeliveryStatus;
+  status: OrderStatus;
   tracking_number?: string;
   created_at: Date;
   shipped_at?: Date;
   delivered_at?: Date;
 }
 
-export function validateDelivery(data: Partial<Delivery>): string[] {
+export function validateOrder(data: Partial<Order>): string[] {
   const errors: string[] = [];
   if (!data.order_id) errors.push('order_id is required');
   if (!data.user_id) errors.push('user_id is required');
@@ -23,9 +22,9 @@ export function validateDelivery(data: Partial<Delivery>): string[] {
   return errors;
 }
 
-export function validateStatusTransition(currentStatus: DeliveryStatus, newStatus: DeliveryStatus): boolean {
-  const validTransitions: Record<DeliveryStatus, DeliveryStatus[]> = {
-    'Processing': ['Shipped'],
+export function validateStatusTransition(currentStatus: OrderStatus, newStatus: OrderStatus): boolean {
+  const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+    'Pending': ['Shipped'],
     'Shipped': ['Delivered'],
     'Delivered': []
   };

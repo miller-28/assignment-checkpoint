@@ -1,13 +1,14 @@
 // RabbitMQ Consumer for orders.created queue
+// NOTE: Not used anymore - Orders are created directly in shared database by Sales API
 import * as amqp from 'amqplib';
 import { config } from '../../infrastructure/config';
-import { DeliveryService } from '../../domain/services/DeliveryService';
+import { OrderService } from '../../domain/services/OrderService';
 
 export class OrderEventConsumer {
   private connection: any = null;
   private channel: any = null;
 
-  constructor(private deliveryService: DeliveryService) {}
+  constructor(private orderService: OrderService) {}
 
   async start(): Promise<void> {
     if (!config.rabbitmqUrl) {
@@ -37,16 +38,11 @@ export class OrderEventConsumer {
       const orderData = JSON.parse(msg.content.toString());
       console.log(`Received order: ${orderData.order_id}`);
       
-      // Create delivery from order
-      await this.deliveryService.createDelivery({
-        order_id: orderData.order_id,
-        user_id: orderData.user_id,
-        product_id: orderData.product_id,
-        quantity: orderData.quantity,
-      });
+      // Note: Not used anymore - orders exist directly in shared database
+      // No need to create separate records
       
       this.channel.ack(msg);
-      console.log(`Delivery created for order ${orderData.order_id}`);
+      console.log(`Acknowledged order ${orderData.order_id}`);
     } catch (error) {
       console.error('Error processing order message:', error);
       // Requeue the message

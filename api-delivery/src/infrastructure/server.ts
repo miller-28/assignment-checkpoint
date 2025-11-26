@@ -4,11 +4,11 @@ import cors from '@fastify/cors';
 import { config } from './config';
 
 // Domain
-import { DeliveryService } from '../domain/services/DeliveryService';
+import { OrderService } from '../domain/services/OrderService';
 import { TrackingService } from '../domain/services/TrackingService';
 
 // Repositories
-import { PostgresDeliveryRepository } from '../adapters/outbound/PostgresDeliveryRepository';
+import { PostgresOrderRepository } from '../adapters/outbound/PostgresOrderRepository';
 
 // Messaging
 import { RabbitMQPublisher } from '../adapters/outbound/RabbitMQPublisher';
@@ -16,7 +16,7 @@ import { KafkaProducer } from '../adapters/outbound/KafkaProducer';
 import { OrderEventConsumer } from '../adapters/messaging/OrderEventConsumer';
 
 // Controllers
-import { DeliveryController } from '../adapters/inbound/DeliveryController';
+import { OrderController } from '../adapters/inbound/OrderController';
 import { HealthController } from '../adapters/inbound/HealthController';
 
 // Use Cases
@@ -36,8 +36,8 @@ export async function createServer() {
   });
 
   // Initialize dependencies
-  const deliveryRepository = new PostgresDeliveryRepository();
-  const deliveryService = new DeliveryService(deliveryRepository);
+  const orderRepository = new PostgresOrderRepository();
+  const orderService = new OrderService(orderRepository);
   const trackingService = new TrackingService();
   
   const rabbitmqPublisher = new RabbitMQPublisher();
@@ -49,34 +49,34 @@ export async function createServer() {
   
   // Use cases
   const shipOrderUseCase = new ShipOrderUseCase(
-    deliveryService,
+    orderService,
     trackingService,
     rabbitmqPublisher,
     kafkaProducer
   );
   
   const deliverOrderUseCase = new DeliverOrderUseCase(
-    deliveryService,
+    orderService,
     rabbitmqPublisher,
     kafkaProducer
   );
   
   // Controllers
-  const deliveryController = new DeliveryController(deliveryService, shipOrderUseCase, deliverOrderUseCase);
+  const orderController = new OrderController(orderService, shipOrderUseCase, deliverOrderUseCase);
   const healthController = new HealthController();
   
   // Register routes
-  deliveryController.registerRoutes(app);
+  orderController.registerRoutes(app);
   healthController.registerRoutes(app);
   
-  // Start RabbitMQ consumer
-  const orderConsumer = new OrderEventConsumer(deliveryService);
-  await orderConsumer.start();
+  // Note: RabbitMQ consumer not needed - Sales API creates orders directly in DB
+  // const orderConsumer = new OrderEventConsumer(orderService);
+  // await orderConsumer.start();
   
   // Graceful shutdown
   const gracefulShutdown = async () => {
     console.log('Shutting down gracefully...');
-    await orderConsumer.stop();
+    // await orderConsumer.stop(); // Not using consumer anymore
     await rabbitmqPublisher.close();
     await kafkaProducer.disconnect();
     await app.close();
